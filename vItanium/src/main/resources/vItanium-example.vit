@@ -1,0 +1,14 @@
+Loc T
+LdInt 1
+StLoc T
+Next: LdLoc T
+Cvts
+Print
+LdLoc T
+LdInt 1
+Sum
+StLoc T
+LdLoc T
+LdInt 11
+JL NEXT
+Halt
