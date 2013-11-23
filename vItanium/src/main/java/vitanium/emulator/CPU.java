@@ -1,5 +1,6 @@
 package vitanium.emulator;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -9,21 +10,19 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.Appender;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.spi.RootLogger;
+import org.apache.log4j.RollingFileAppender;
 
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
 
 /**
  * Main entry point to the console application
- * 
- * @author vassi_000
  * 
  */
 public class CPU {
@@ -46,8 +45,11 @@ public class CPU {
 		options.addOption("h", "help", false, "print usage help message");
 		
 		// bootstrap log4j
-		URL log4jConfigUrl = CPU.class.getResource("/log4j.properties");
-		PropertyConfigurator.configure(log4jConfigUrl);
+		try {
+			configureLogging();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 
 		try {
 			// parse the command line arguments
@@ -73,16 +75,6 @@ public class CPU {
 						throw new ParseException(e.getMessage());
 					}
 				}
-				
-				Logger rootLogger = LogManager.getRootLogger();
-				if (System.getProperty("vItanium.debug") != null) {
-					AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("main");
-					mainAppender.setThreshold(Level.ALL);
-				}
-				if (System.getProperty("vItanium.execution.debug") != null) {
-					AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("execution");
-					mainAppender.setThreshold(Level.ALL);
-				}
 
 				Program program = compileProgram(sourceFilePath);
 				VItaniumRunner runner = new VItaniumRunner(instructionLimit);
@@ -102,6 +94,48 @@ public class CPU {
 			LOG.error(e.getMessage(), e);
 		} catch (VItaniumExecutionException e) {
 			LOG.error(e.getMessage(), e);
+		}
+	}
+
+	private static void configureLogging() throws IOException {
+		
+		String log4jProperties = System.getProperty("log4j.configuration");
+		if (log4jProperties != null) {
+			PropertyConfigurator.configure(log4jProperties);
+		} else {
+			// use default logging configuration
+			URL log4jConfigUrl = CPU.class.getResource("/log4j.properties");
+			PropertyConfigurator.configure(log4jConfigUrl);
+		}
+		
+		Logger rootLogger = LogManager.getRootLogger();
+		if (System.getProperty("vItanium.debug") != null) {
+			AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("main");
+			if (mainAppender == null) {
+				PatternLayout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n");
+				RollingFileAppender appender = new RollingFileAppender(layout, "vItanium.log");
+				appender.setMaxFileSize("10MB");
+				appender.setMaxBackupIndex(1);
+				appender.setThreshold(Level.ALL);
+				appender.setName("main");
+				rootLogger.addAppender(appender);
+			} else {
+				mainAppender.setThreshold(Level.ALL);
+			}
+		}
+		if (System.getProperty("vItanium.execution.debug") != null) {
+			AppenderSkeleton executionAppender = (AppenderSkeleton) rootLogger.getAppender("execution");
+			if (executionAppender == null) {
+				PatternLayout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n");
+				RollingFileAppender appender = new RollingFileAppender(layout, "vItanium-execution.log");
+				appender.setMaxFileSize("10MB");
+				appender.setMaxBackupIndex(1);
+				appender.setThreshold(Level.ALL);
+				appender.setName("execution");
+				rootLogger.addAppender(appender);
+			} else {
+				executionAppender.setThreshold(Level.ALL);
+			}
 		}
 	}
 

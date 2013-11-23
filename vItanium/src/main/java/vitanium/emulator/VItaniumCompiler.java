@@ -23,7 +23,6 @@ import vitanium.emulator.instructions.Loc;
 import vitanium.emulator.instructions.Print;
 import vitanium.emulator.instructions.StLoc;
 import vitanium.emulator.instructions.Sum;
-import vitanium.emulator.instructions.VItaniumInstructions;
 
 public final class VItaniumCompiler {
 	

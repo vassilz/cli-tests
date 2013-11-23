@@ -7,8 +7,6 @@ import vitanium.emulator.Program;
 
 /**
  * Common {@link Instruction} supertype, defining some execution lifecycle logic
- * 
- * @author vassi_000
  *
  */
 public abstract class VItaniumInstruction implements Instruction {
