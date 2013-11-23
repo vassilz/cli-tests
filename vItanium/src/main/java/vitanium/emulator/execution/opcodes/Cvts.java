@@ -1,5 +1,6 @@
-package vitanium.emulator.opcodes;
+package vitanium.emulator.execution.opcodes;
 
+import java.text.MessageFormat;
 import java.util.EmptyStackException;
 
 import vitanium.emulator.VItaniumInstruction;
@@ -7,28 +8,30 @@ import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Stack;
 
-public class Print extends VItaniumInstruction {
-	
-	public Print(int sourceIndex) {
+public class Cvts extends VItaniumInstruction {
+
+	public Cvts(int sourceIndex) {
 		super(sourceIndex);
 	}
 
 	@Override
-	public void doExecute(Program program, Stack stack) throws VItaniumExecutionException {
+	public void doExecute(Program program, Stack stack)
+			throws VItaniumExecutionException {
 		try {
-			String stackTop = stack.popString();
+			int value = stack.popInt();
 			
-			System.out.println(stackTop);
-			
+			log.trace(MessageFormat.format("Converted {0} and pushed back as string.", value));
+
+			stack.pushString(String.valueOf(value));
+
 		} catch (ClassCastException | EmptyStackException e) {
 			throw new VItaniumExecutionException(e);
 		}
-		
 	}
 
 	@Override
 	public OpCode getCode() {
-		return OpCode.PRINT;
+		return OpCode.CVTS;
 	}
 
 }

@@ -11,8 +11,8 @@ import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.exceptions.VariableNotFoundException;
 import vitanium.emulator.execution.Instruction.OpCode;
-import vitanium.emulator.opcodes.JL;
-import vitanium.emulator.opcodes.Jmp;
+import vitanium.emulator.execution.opcodes.JL;
+import vitanium.emulator.execution.opcodes.Jmp;
 
 public final class Program {
 	

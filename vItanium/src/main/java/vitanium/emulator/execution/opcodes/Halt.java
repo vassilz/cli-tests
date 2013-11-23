@@ -1,4 +1,4 @@
-package vitanium.emulator.opcodes;
+package vitanium.emulator.execution.opcodes;
 
 import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.execution.Program;

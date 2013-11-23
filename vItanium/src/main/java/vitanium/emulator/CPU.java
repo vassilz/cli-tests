@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -115,16 +114,9 @@ public class CPU {
 			PropertyConfigurator.configure(log4jConfigUrl);
 		}
 		
-		Logger rootLogger = LogManager.getRootLogger();
-		
-		Enumeration loggers = LogManager.getCurrentLoggers();
-		while (loggers.hasMoreElements()) {
-			Logger l = (Logger) loggers.nextElement();
-			Enumeration appenders = l.getAllAppenders();
-			System.out.println("stop here");
-		}
-		
 		if (System.getProperty("vItanium.debug") != null) {
+			Logger rootLogger = LogManager.getRootLogger();
+			rootLogger.setLevel(Level.ALL); // we need this; use the main appender Level for user-filtering
 			AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("main");
 			if (mainAppender == null) {
 				PatternLayout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n");
@@ -139,7 +131,10 @@ public class CPU {
 			}
 		}
 		if (System.getProperty("vItanium.execution.debug") != null) {
-			AppenderSkeleton executionAppender = (AppenderSkeleton) rootLogger.getAppender("execution");
+			Logger executionLogger = LogManager.getLogger("vitanium.emulator.execution");
+			executionLogger.setLevel(Level.ALL);
+			executionLogger.setAdditivity(false); // do not flood the emulator system logs with program output
+			AppenderSkeleton executionAppender = (AppenderSkeleton) executionLogger.getAppender("execution");
 			if (executionAppender == null) {
 				PatternLayout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n");
 				RollingFileAppender appender = new RollingFileAppender(layout, "vItanium-execution.log");
@@ -147,7 +142,7 @@ public class CPU {
 				appender.setMaxBackupIndex(1);
 				appender.setThreshold(Level.ALL);
 				appender.setName("execution");
-				rootLogger.addAppender(appender);
+				executionLogger.addAppender(appender);
 			} else {
 				executionAppender.setThreshold(Level.ALL);
 			}

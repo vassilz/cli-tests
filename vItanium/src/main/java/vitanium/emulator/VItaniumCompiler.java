@@ -14,16 +14,16 @@ import vitanium.emulator.exceptions.VItaniumSystemException;
 import vitanium.emulator.execution.Instruction;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Instruction.OpCode;
-import vitanium.emulator.opcodes.Cvts;
-import vitanium.emulator.opcodes.Halt;
-import vitanium.emulator.opcodes.JL;
-import vitanium.emulator.opcodes.Jmp;
-import vitanium.emulator.opcodes.LdInt;
-import vitanium.emulator.opcodes.LdLoc;
-import vitanium.emulator.opcodes.Loc;
-import vitanium.emulator.opcodes.Print;
-import vitanium.emulator.opcodes.StLoc;
-import vitanium.emulator.opcodes.Sum;
+import vitanium.emulator.execution.opcodes.Cvts;
+import vitanium.emulator.execution.opcodes.Halt;
+import vitanium.emulator.execution.opcodes.JL;
+import vitanium.emulator.execution.opcodes.Jmp;
+import vitanium.emulator.execution.opcodes.LdInt;
+import vitanium.emulator.execution.opcodes.LdLoc;
+import vitanium.emulator.execution.opcodes.Loc;
+import vitanium.emulator.execution.opcodes.Print;
+import vitanium.emulator.execution.opcodes.StLoc;
+import vitanium.emulator.execution.opcodes.Sum;
 
 public final class VItaniumCompiler {
 
