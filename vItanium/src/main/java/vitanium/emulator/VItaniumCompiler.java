@@ -33,7 +33,7 @@ public final class VItaniumCompiler {
 	private static final String LABEL_SEPARATOR = ":";
 	private static final Pattern LABEL_PATTERN = Pattern.compile("[a-zA-Z]+",
 			Pattern.CASE_INSENSITIVE);
-	
+
 	private static final String COMMENT_SYMBOL = "!";
 
 	private final Logger log = Logger.getLogger(getClass());
@@ -69,17 +69,12 @@ public final class VItaniumCompiler {
 				String instruction = nextLine.trim();
 				String label = null;
 
-				if (instruction.startsWith(COMMENT_SYMBOL)) {
-					if (enableComments) {
-						// moving on
-						log.warn(MessageFormat
-								.format("Instruction line {0} skipped from the assembly, due to debug flag set!!",
-										instruction));
-						continue;
-					} else {
-						// skip '!' symbol for now; we'll fail below...
-						instruction = instruction.substring(1);
-					}
+				if (enableComments && instruction.startsWith(COMMENT_SYMBOL)) {
+					// moving on
+					log.warn(MessageFormat
+							.format("Instruction line {0} skipped from the assembly, due to debug flag set!!",
+									instruction));
+					continue;
 				}
 
 				if (instruction.contains(LABEL_SEPARATOR)
