@@ -165,6 +165,10 @@ public final class Program {
 		throw new VariableNotFoundException(ucName);
 	}
 	
+	public void incrementExecutedInstructions() {
+		executedInstructions++;
+	}
+	
 	/**
 	 * Used to debug vItanium programs that fail upon execution.
 	 */

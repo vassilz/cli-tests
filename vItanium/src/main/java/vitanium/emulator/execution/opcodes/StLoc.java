@@ -1,7 +1,5 @@
 package vitanium.emulator.execution.opcodes;
 
-import java.util.EmptyStackException;
-
 import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
@@ -24,12 +22,8 @@ public class StLoc extends VItaniumInstruction {
 	@Override
 	public void doExecute(Program program, Stack stack)
 			throws VItaniumExecutionException {
-		try {
-			Object stackTop = stack.pop();
-			program.storeNamedVariableValue(variable, stackTop);
-		} catch (EmptyStackException e) {
-			throw new VItaniumExecutionException(e);
-		}
+		Object stackTop = stack.pop();
+		program.storeNamedVariableValue(variable, stackTop);
 	}
 
 	@Override

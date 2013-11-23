@@ -175,11 +175,11 @@ public class CPU {
 	}
 
 	private static void printUsage(Options expectedOpts) {
-		String header = "Do something useful with an input file\n\n";
-		String footer = "\nPlease report issues at http://example.com/issues";
+		String header = "Single-threaded vItanium emulator\n\n";
+		String footer = "\nPlease report issues at vassil.zorev87@gmail.com";
 
 		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("vItanium emulator", header, expectedOpts, footer,
+		formatter.printHelp("vitanium.emulator.CPU", header, expectedOpts, footer,
 				true);
 	}
 

@@ -94,6 +94,8 @@ public abstract class VItaniumInstruction implements Instruction {
 	public void afterExecute(Program program) {
 		parentLogger.info(program.toString() + " " + this.toString()
 				+ " executed successfully.");
+		
+		program.incrementExecutedInstructions();
 	}
 
 	public void beforeExecute(Program program) {
