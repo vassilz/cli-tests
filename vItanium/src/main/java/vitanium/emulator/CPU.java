@@ -46,6 +46,7 @@ public class CPU {
 				"instructionlimit",
 				true,
 				"maximum allowed number of instructions to execute per program. does not affect number of declared instruction in the source code");
+		options.addOption("c", "enablecomments", false, "skip instructions from the source assembly if they start with '!'. This is in experimental status! Use with care!");
 		options.addOption("h", "help", false, "print usage help message");
 		
 		// bootstrap log4j
@@ -79,8 +80,13 @@ public class CPU {
 						throw new ParseException(e.getMessage());
 					}
 				}
+				
+				boolean enableComments = false;
+				if (line.hasOption('c')) {
+					enableComments = true;
+				}
 
-				Program program = compileProgram(sourceFilePath);
+				Program program = compileProgram(sourceFilePath, enableComments);
 				VItaniumRunner runner = new VItaniumRunner(instructionLimit);
 				executeProgram(program, runner);
 
@@ -154,11 +160,13 @@ public class CPU {
 		runner.executeProgram(program);
 	}
 
-	private static Program compileProgram(String programPath)
+	private static Program compileProgram(String programPath, boolean enableComments)
 			throws VItaniumParseException, VItaniumSystemException {
+		VItaniumCompiler compiler = new VItaniumCompiler(enableComments);
+		
 		File program = new File(programPath);
 		if (program.exists()) {
-			return new VItaniumCompiler().compileFromSourceFile(program);
+			return compiler.compileFromSourceFile(program);
 		} else {
 			// fallback to classpath
 			URL programUrl = CPU.class.getResource("/" + programPath);
@@ -166,7 +174,7 @@ public class CPU {
 				throw new VItaniumParseException("Program file not found: " + programPath);
 			}
 			try {
-				return new VItaniumCompiler().compileFromSourceFile(new File(programUrl.toURI()));
+				return compiler.compileFromSourceFile(new File(programUrl.toURI()));
 			} catch (URISyntaxException e) {
 				// now what...
 				throw new RuntimeException(e);

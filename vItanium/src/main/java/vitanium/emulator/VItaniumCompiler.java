@@ -32,6 +32,16 @@ public final class VItaniumCompiler {
 
 	// make sure all Loc instructions go at the beginning of the program
 	private boolean acceptDeclarations = true;
+	
+	private final boolean enableComments;
+	
+	public VItaniumCompiler() {
+		this(false);
+	}
+	
+	public VItaniumCompiler(boolean enableComments) {
+		this.enableComments = enableComments;
+	}
 
 	public Program compileFromSourceFile(File programFile)
 			throws VItaniumParseException, VItaniumSystemException {
@@ -65,7 +75,7 @@ public final class VItaniumCompiler {
 
 				log.debug("Instruction found: " + instruction);
 
-				Instruction vItaniumInstruction = parse(lineNumber, instruction);
+				Instruction vItaniumInstruction = parseInstruction(lineNumber, instruction);
 
 				vItaniumProgram.appendInstruction(label, vItaniumInstruction);
 
@@ -86,7 +96,7 @@ public final class VItaniumCompiler {
 		return vItaniumProgram;
 	}
 
-	public Instruction parse(int sourceIndex, String instruction)
+	public Instruction parseInstruction(int sourceIndex, String instruction)
 			throws VItaniumParseException, VItaniumSystemException {
 		if (instruction == null) {
 			throw new VItaniumSystemException("null instruction");
