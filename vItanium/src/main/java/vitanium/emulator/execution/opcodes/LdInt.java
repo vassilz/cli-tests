@@ -3,16 +3,25 @@ package vitanium.emulator.execution.opcodes;
 import java.text.MessageFormat;
 
 import vitanium.emulator.VItaniumInstruction;
+import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Stack;
 
 public class LdInt extends VItaniumInstruction {
 	
-	private final int integer; // what int-s do we work with?
+	private int integer; // XXX what int-s do we work with?
 	
-	public LdInt(int sourceIndex, int value) {
-		super(sourceIndex);
-		integer = value;
+	public LdInt(int sourceIndex) {
+		super(sourceIndex, 1);
+	}
+	
+	@Override
+	protected void doParse(String[] arguments) throws VItaniumParseException {
+		try {
+			integer = Integer.parseInt(arguments[0]);
+		} catch (NumberFormatException e) {
+			throw new VItaniumParseException(e);
+		}
 	}
 
 	@Override

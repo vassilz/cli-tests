@@ -3,16 +3,21 @@ package vitanium.emulator.execution.opcodes;
 import java.text.MessageFormat;
 
 import vitanium.emulator.VItaniumInstruction;
+import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Stack;
 
 public class Jmp extends VItaniumInstruction {
 	
-	private final String label;
+	private String label;
 	
-	public Jmp(int sourceIndex, String jumpTo) {
-		super(sourceIndex);
-		label = jumpTo;
+	public Jmp(int sourceIndex) {
+		super(sourceIndex, 1);
+	}
+	
+	@Override
+	protected void doParse(String[] arguments) throws VItaniumParseException {
+		label = arguments[0];
 	}
 
 	@Override

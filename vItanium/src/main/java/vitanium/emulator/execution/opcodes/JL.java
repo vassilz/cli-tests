@@ -5,19 +5,24 @@ import java.util.EmptyStackException;
 
 import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Stack;
 
 public class JL extends VItaniumInstruction {
 
-	private final String label;
+	private String label;
 
 	// to be recalculated each time the JL instance is executed
 	private boolean condition;
 
-	public JL(int sourceIndex, String jumpTo) {
-		super(sourceIndex);
-		label = jumpTo;
+	public JL(int sourceIndex) {
+		super(sourceIndex, 1);
+	}
+	
+	@Override
+	protected void doParse(String[] arguments) throws VItaniumParseException {
+		label = arguments[0];
 	}
 
 	@Override

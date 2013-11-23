@@ -1,16 +1,17 @@
 package vitanium.emulator.execution;
 
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.exceptions.VItaniumParseException;
 
 public interface Instruction {
 
-	void parse(String sourceInstruction);
+	void parse(String[] arguments) throws VItaniumParseException;
 	
 	void doExecute(Program program, Stack stack) throws VItaniumExecutionException;
 	
-	void beforeExecute(Program program);
+	void beforeExecute(Program program) throws VItaniumExecutionException;
 	
-	void afterExecute(Program program);
+	void afterExecute(Program program) throws VItaniumExecutionException;
 	
 	OpCode getCode();
 	

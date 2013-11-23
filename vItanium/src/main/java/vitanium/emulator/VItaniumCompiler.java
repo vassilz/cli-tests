@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -99,10 +100,12 @@ public final class VItaniumCompiler {
 
 		String sCode = parts[0];
 		OpCode opCode = OpCode.valueOf(sCode.toUpperCase());
+		Instruction parsedInstruction = null;
 		switch (opCode) {
 		case LOC: {
 			if (acceptDeclarations) {
-				return new Loc(sourceIndex, parts[1]);
+				parsedInstruction = new Loc(sourceIndex);
+				break;
 			} else {
 				throw new VItaniumParseException(
 						"All local variable declarations (LOC <var>) must go in the beginning of the program.");
@@ -110,53 +113,63 @@ public final class VItaniumCompiler {
 		}
 		case LDINT: {
 			acceptDeclarations = false;
-
-			return new LdInt(sourceIndex, Integer.parseInt(parts[1]));
+			parsedInstruction = new LdInt(sourceIndex);
+			break;
 		}
 		case STLOC: {
 			acceptDeclarations = false;
-
-			return new StLoc(sourceIndex, parts[1]);
+			parsedInstruction = new StLoc(sourceIndex);
+			break;
 		}
 		case LDLOC: {
 			acceptDeclarations = false;
-
-			return new LdLoc(sourceIndex, parts[1]);
+			parsedInstruction = new LdLoc(sourceIndex);
+			break;
 		}
 		case CVTS: {
 			acceptDeclarations = false;
-
-			return new Cvts(sourceIndex);
+			parsedInstruction = new Cvts(sourceIndex);
+			break;
 		}
 		case PRINT: {
 			acceptDeclarations = false;
-
-			return new Print(sourceIndex);
+			parsedInstruction = new Print(sourceIndex);
+			break;
 		}
 		case SUM: {
 			acceptDeclarations = false;
-
-			return new Sum(sourceIndex);
+			parsedInstruction = new Sum(sourceIndex);
+			break;
 		}
 		case JMP: {
 			acceptDeclarations = false;
-
-			return new Jmp(sourceIndex, parts[1]);
+			parsedInstruction = new Jmp(sourceIndex);
+			break;
 		}
 		case JL: {
 			acceptDeclarations = false;
-
-			return new JL(sourceIndex, parts[1]);
+			parsedInstruction = new JL(sourceIndex);
+			break;
 		}
 		case HALT: {
 			acceptDeclarations = false;
-
-			return new Halt(sourceIndex);
+			parsedInstruction = new Halt(sourceIndex);
+			break;
 		}
 		default: {
 			throw new VItaniumParseException(
 					"Unrecognized vItanium instruction OpCode: " + instruction);
 		}
 		}
+		
+		if (parts.length == 1) {
+			// no-arg instruction
+			parsedInstruction.parse(new String[]{});
+		} else {
+			String[] arguments = Arrays.copyOfRange(parts, 1, parts.length);
+			parsedInstruction.parse(arguments);
+		}
+		
+		return parsedInstruction;
 	}
 }

@@ -4,16 +4,21 @@ import java.util.EmptyStackException;
 
 import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.execution.Program;
 import vitanium.emulator.execution.Stack;
 
 public class StLoc extends VItaniumInstruction {
 
-	private final String variable;
+	private String variable;
 
-	public StLoc(int sourceIndex, String varName) {
-		super(sourceIndex);
-		variable = varName;
+	public StLoc(int sourceIndex) {
+		super(sourceIndex, 1);
+	}
+	
+	@Override
+	protected void doParse(String[] arguments) throws VItaniumParseException {
+		variable = arguments[0];
 	}
 
 	@Override
