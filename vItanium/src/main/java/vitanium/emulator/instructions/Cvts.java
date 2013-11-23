@@ -8,7 +8,7 @@ import vitanium.emulator.exceptions.VItaniumExecutionException;
 
 public class Cvts extends VItaniumInstruction {
 
-	Cvts(int sourceIndex) {
+	public Cvts(int sourceIndex) {
 		super(sourceIndex);
 	}
 

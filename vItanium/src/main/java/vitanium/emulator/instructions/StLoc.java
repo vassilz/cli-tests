@@ -10,7 +10,7 @@ public class StLoc extends VItaniumInstruction {
 
 	private final String variable;
 
-	StLoc(int sourceIndex, String varName) {
+	public StLoc(int sourceIndex, String varName) {
 		super(sourceIndex);
 		variable = varName;
 	}

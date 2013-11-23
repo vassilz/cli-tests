@@ -7,7 +7,7 @@ public class Jmp extends VItaniumInstruction {
 	
 	private final String label;
 	
-	Jmp(int sourceIndex, String jumpTo) {
+	public Jmp(int sourceIndex, String jumpTo) {
 		super(sourceIndex);
 		label = jumpTo;
 	}

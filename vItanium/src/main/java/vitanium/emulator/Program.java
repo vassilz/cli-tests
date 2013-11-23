@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import vitanium.emulator.Instruction.OpCode;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
@@ -13,6 +15,8 @@ import vitanium.emulator.instructions.JL;
 import vitanium.emulator.instructions.Jmp;
 
 public final class Program {
+	
+	private final Logger log;
 	
 	// Human-readable name of the program. Derived from the source file.
 	private final String name;
@@ -31,6 +35,7 @@ public final class Program {
 	
 	public Program(String programName) {
 		name = programName;
+		log = Logger.getLogger(programName);
 		
 		instructions = new ArrayList<>();
 		labeledInstructions = new HashMap<>();
@@ -150,16 +155,12 @@ public final class Program {
 	}
 	
 	/**
-	 * Can be used to debug vItanium programs.
-	 * @param verbose if false - only dump stack; if true - also dump variables and labels
+	 * Used to debug vItanium programs that fail upon execution.
 	 */
-	void dumpState(boolean verbose) {
-		System.out.println("Stack: " + executionStack.toString());
-		
-		if (verbose) {
-			System.out.println("Local variables: " + namedVariables);
-			System.out.println("Defined labels: " + labeledInstructions.keySet());
-		}
+	void dumpState() {
+		log.debug("Stack: " + executionStack.toString());
+		log.trace("Local variables: " + namedVariables);
+		log.trace("Defined labels: " + labeledInstructions.keySet());
 	}
 	
 	@Override

@@ -5,7 +5,7 @@ import vitanium.emulator.Stack;
 
 public class Halt extends VItaniumInstruction {
 	
-	Halt(int sourceIndex) {
+	public Halt(int sourceIndex) {
 		super(sourceIndex);
 	}
 

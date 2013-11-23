@@ -13,7 +13,7 @@ public class JL extends VItaniumInstruction {
 	// to be recalculated each time the JL instance is executed
 	private boolean condition;
 	
-	JL(int sourceIndex, String jumpTo) {
+	public JL(int sourceIndex, String jumpTo) {
 		super(sourceIndex);
 		label = jumpTo;
 	}

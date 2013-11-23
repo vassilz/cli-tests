@@ -1,32 +1,29 @@
 package vitanium.emulator;
 
+import org.apache.log4j.Logger;
+
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 
 public final class VItaniumRunner {
 	
-	private final int instructionLimit;
-	private final boolean isDebugEnabled;
-	private final boolean isTraceEnabled;
+	private final Logger log = Logger.getLogger(getClass());
 	
-	public VItaniumRunner(boolean isDebugEnabled, boolean isTraceEnabled, int instructionLimit) {
+	private final int instructionLimit;
+	
+	public VItaniumRunner(int instructionLimit) {
 		this.instructionLimit = instructionLimit;
-		this.isDebugEnabled = isDebugEnabled;
-		this.isTraceEnabled = isTraceEnabled;
 	}
 
 	public void executeProgram(Program program) throws VItaniumExecutionException {
-		System.out.println("Executing vItanium code...");
+		log.info("Executing program "+program.toString()+"...");
 
 		try {
 			program.execute(instructionLimit);
 		} catch (VItaniumExecutionException e) {
-			if (isDebugEnabled) {
-				program.dumpState(isTraceEnabled);
-			}
-
+			program.dumpState();
 			throw e;
 		}
 
-		System.out.println("Execution finished successfully");
+		log.info("Execution finished successfully");
 	}
 }

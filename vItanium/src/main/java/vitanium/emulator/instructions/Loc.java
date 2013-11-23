@@ -8,7 +8,7 @@ public class Loc extends VItaniumInstruction {
 	
 	private final String variable;
 	
-	Loc(int sourceIndex, String varName) {
+	public Loc(int sourceIndex, String varName) {
 		super(sourceIndex);
 		variable = varName;
 	}

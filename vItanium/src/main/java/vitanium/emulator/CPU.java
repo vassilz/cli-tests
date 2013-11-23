@@ -1,12 +1,5 @@
 package vitanium.emulator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -14,17 +7,18 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Appender;
+import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.spi.RootLogger;
 
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
-import vitanium.emulator.instructions.VItaniumInstructions;
 
 /**
  * Main entry point to the console application
@@ -49,12 +43,6 @@ public class CPU {
 				"instructionlimit",
 				true,
 				"maximum allowed number of instructions to execute per program. does not affect number of declared instruction in the source code");
-		options.addOption("d", "debug", false, "enable debug log");
-		options.addOption(
-				"t",
-				"trace",
-				false,
-				"enable trace log (this depends on --debug flag to be set in order to take effect)");
 		options.addOption("h", "help", false, "print usage help message");
 		
 		// bootstrap log4j
@@ -85,19 +73,25 @@ public class CPU {
 						throw new ParseException(e.getMessage());
 					}
 				}
-
-				boolean isDebugEnabled = line.hasOption('d');
-				boolean isTraceEnabled = isDebugEnabled && line.hasOption('t');
+				
+				Logger rootLogger = LogManager.getRootLogger();
+				if (System.getProperty("vItanium.debug") != null) {
+					AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("main");
+					mainAppender.setThreshold(Level.ALL);
+				}
+				if (System.getProperty("vItanium.execution.debug") != null) {
+					AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("execution");
+					mainAppender.setThreshold(Level.ALL);
+				}
 
 				Program program = compileProgram(sourceFilePath);
-				VItaniumRunner runner = new VItaniumRunner(isDebugEnabled, isTraceEnabled, instructionLimit);
+				VItaniumRunner runner = new VItaniumRunner(instructionLimit);
 				executeProgram(program, runner);
 
 			} else if (line.hasOption('h')) {
 				printUsage(options);
 			} else {
-				System.err.println("Illegal options received: "
-						+ Arrays.asList(line.getOptions()));
+				LOG.fatal("Unparsable arguments: " + Arrays.asList(line.getOptions()));
 				printUsage(options);
 			}
 		} catch (ParseException e) {

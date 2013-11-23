@@ -8,7 +8,7 @@ import vitanium.emulator.exceptions.VItaniumExecutionException;
 
 public class Print extends VItaniumInstruction {
 	
-	Print(int sourceIndex) {
+	public Print(int sourceIndex) {
 		super(sourceIndex);
 	}
 

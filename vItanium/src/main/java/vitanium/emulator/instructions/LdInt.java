@@ -7,7 +7,7 @@ public class LdInt extends VItaniumInstruction {
 	
 	private final int integer; // what int-s do we work with?
 	
-	LdInt(int sourceIndex, int value) {
+	public LdInt(int sourceIndex, int value) {
 		super(sourceIndex);
 		integer = value;
 	}

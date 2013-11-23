@@ -8,7 +8,7 @@ public class LdLoc extends VItaniumInstruction {
 	
 	private final String variable;
 	
-	LdLoc(int sourceIndex, String varName) {
+	public LdLoc(int sourceIndex, String varName) {
 		super(sourceIndex);
 		variable = varName;
 	}

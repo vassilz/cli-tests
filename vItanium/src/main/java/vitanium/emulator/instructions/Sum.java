@@ -8,7 +8,7 @@ import vitanium.emulator.exceptions.VItaniumExecutionException;
 
 public class Sum extends VItaniumInstruction {
 	
-	Sum(int sourceIndex) {
+	public Sum(int sourceIndex) {
 		super(sourceIndex);
 	}
 

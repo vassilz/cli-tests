@@ -1,5 +1,7 @@
 package vitanium.emulator.instructions;
 
+import org.apache.log4j.Logger;
+
 import vitanium.emulator.Instruction;
 import vitanium.emulator.Program;
 
@@ -10,6 +12,8 @@ import vitanium.emulator.Program;
  *
  */
 public abstract class VItaniumInstruction implements Instruction {
+	
+	protected final Logger log = Logger.getLogger(getClass());
 	
 	private final int index;
 	
@@ -27,11 +31,11 @@ public abstract class VItaniumInstruction implements Instruction {
 	}
 
 	public void afterExecute(Program program) {
-		System.out.println(program.toString() + " " + this.toString() + " executed successfully.");
+		log.info(program.toString() + " " + this.toString() + " executed successfully.");
 	}
 
 	public void beforeExecute(Program program) {
-		System.out.println(program.toString() + " Begin executing : " + this.toString() + "...");
+		log.info(program.toString() + " Begin executing : " + this.toString() + "...");
 	}
 	
 	@Override
