@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -28,17 +30,23 @@ import vitanium.emulator.execution.opcodes.Sum;
 
 public final class VItaniumCompiler {
 
+	private static final String LABEL_SEPARATOR = ":";
+	private static final Pattern LABEL_PATTERN = Pattern.compile("[a-zA-Z]+",
+			Pattern.CASE_INSENSITIVE);
+	
+	private static final String COMMENT_SYMBOL = "!";
+
 	private final Logger log = Logger.getLogger(getClass());
 
 	// make sure all Loc instructions go at the beginning of the program
 	private boolean acceptDeclarations = true;
-	
+
 	private final boolean enableComments;
-	
+
 	public VItaniumCompiler() {
 		this(false);
 	}
-	
+
 	public VItaniumCompiler(boolean enableComments) {
 		this.enableComments = enableComments;
 	}
@@ -55,17 +63,38 @@ public final class VItaniumCompiler {
 		try (BufferedReader bReader = new BufferedReader(new FileReader(
 				programFile))) {
 			String nextLine = null;
-			int lineNumber = 0;
+			int sourceIndex = 0;
 
 			while ((nextLine = bReader.readLine()) != null) {
-				String instruction = nextLine;
+				String instruction = nextLine.trim();
 				String label = null;
 
-				if (instruction.contains(":")
-						&& (instruction.indexOf(":") == instruction
-								.lastIndexOf(":"))) {
-					int labelSeparatorIndex = instruction.indexOf(":");
-					label = instruction.substring(0, labelSeparatorIndex); // .trim().toUpperCase();
+				if (instruction.startsWith(COMMENT_SYMBOL)) {
+					if (enableComments) {
+						// moving on
+						log.warn(MessageFormat
+								.format("Instruction line {0} skipped from the assembly, due to debug flag set!!",
+										instruction));
+						continue;
+					} else {
+						// skip '!' symbol for now; we'll fail below...
+						instruction = instruction.substring(1);
+					}
+				}
+
+				if (instruction.contains(LABEL_SEPARATOR)
+						&& (instruction.indexOf(LABEL_SEPARATOR) == instruction
+								.lastIndexOf(LABEL_SEPARATOR))) {
+					int labelSeparatorIndex = instruction
+							.indexOf(LABEL_SEPARATOR);
+					label = instruction.substring(0, labelSeparatorIndex);
+
+					if (!LABEL_PATTERN.matcher(label).matches()) {
+						throw new VItaniumParseException(
+								MessageFormat
+										.format("Unparsable label found {0}; valid labels are {1}.",
+												label, LABEL_PATTERN.pattern()));
+					}
 
 					log.debug("Label found: " + label);
 
@@ -75,11 +104,12 @@ public final class VItaniumCompiler {
 
 				log.debug("Instruction found: " + instruction);
 
-				Instruction vItaniumInstruction = parseInstruction(lineNumber, instruction);
+				Instruction vItaniumInstruction = parseInstruction(sourceIndex,
+						instruction);
 
 				vItaniumProgram.appendInstruction(label, vItaniumInstruction);
 
-				lineNumber++;
+				sourceIndex++;
 			}
 
 		} catch (FileNotFoundException e) {
@@ -171,15 +201,15 @@ public final class VItaniumCompiler {
 					"Unrecognized vItanium instruction OpCode: " + instruction);
 		}
 		}
-		
+
 		if (parts.length == 1) {
 			// no-arg instruction
-			parsedInstruction.parse(new String[]{});
+			parsedInstruction.parse(new String[] {});
 		} else {
 			String[] arguments = Arrays.copyOfRange(parts, 1, parts.length);
 			parsedInstruction.parse(arguments);
 		}
-		
+
 		return parsedInstruction;
 	}
 }
