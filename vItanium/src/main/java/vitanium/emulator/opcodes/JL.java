@@ -1,31 +1,39 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
+import java.text.MessageFormat;
 import java.util.EmptyStackException;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class JL extends VItaniumInstruction {
-	
+
 	private final String label;
-	
+
 	// to be recalculated each time the JL instance is executed
 	private boolean condition;
-	
+
 	public JL(int sourceIndex, String jumpTo) {
 		super(sourceIndex);
 		label = jumpTo;
 	}
-	
+
 	@Override
-	public void doExecute(Program program, Stack stack) throws VItaniumExecutionException {
+	public void doExecute(Program program, Stack stack)
+			throws VItaniumExecutionException {
 		try {
 			int firstInt = stack.popInt();
 			int secondInt = stack.popInt();
-			
+
 			condition = secondInt < firstInt;
-			
+
+			log.trace(MessageFormat.format("Comparing {0} < {1}: {2} to {3}",
+					secondInt, firstInt,
+					condition ? "true - execution will JUMP"
+							: "false - execution will not JUMP", label));
+
 		} catch (ClassCastException | EmptyStackException e) {
 			throw new VItaniumExecutionException(e);
 		}
@@ -35,15 +43,15 @@ public class JL extends VItaniumInstruction {
 	public OpCode getCode() {
 		return OpCode.JL;
 	}
-	
+
 	public String getLabel() {
 		return label;
 	}
-	
+
 	public boolean getCondition() {
 		return condition;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(super.toString());

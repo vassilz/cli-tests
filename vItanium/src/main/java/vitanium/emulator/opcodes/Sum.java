@@ -1,10 +1,11 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
 import java.util.EmptyStackException;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class Sum extends VItaniumInstruction {
 	

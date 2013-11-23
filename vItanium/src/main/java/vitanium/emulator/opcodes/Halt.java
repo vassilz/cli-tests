@@ -1,7 +1,8 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import vitanium.emulator.VItaniumInstruction;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class Halt extends VItaniumInstruction {
 	
@@ -11,8 +12,7 @@ public class Halt extends VItaniumInstruction {
 
 	@Override
 	public void doExecute(Program program, Stack stack) {
-		// TODO Auto-generated method stub
-		
+		log.trace("Halting execution...");
 	}
 
 	@Override

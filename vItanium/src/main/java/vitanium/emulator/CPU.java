@@ -1,8 +1,11 @@
 package vitanium.emulator;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,6 +23,8 @@ import org.apache.log4j.RollingFileAppender;
 
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
+import vitanium.emulator.exceptions.VItaniumSystemException;
+import vitanium.emulator.execution.Program;
 
 /**
  * Main entry point to the console application
@@ -94,6 +99,8 @@ public class CPU {
 			LOG.error(e.getMessage(), e);
 		} catch (VItaniumExecutionException e) {
 			LOG.error(e.getMessage(), e);
+		} catch (VItaniumSystemException e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 
@@ -109,6 +116,14 @@ public class CPU {
 		}
 		
 		Logger rootLogger = LogManager.getRootLogger();
+		
+		Enumeration loggers = LogManager.getCurrentLoggers();
+		while (loggers.hasMoreElements()) {
+			Logger l = (Logger) loggers.nextElement();
+			Enumeration appenders = l.getAllAppenders();
+			System.out.println("stop here");
+		}
+		
 		if (System.getProperty("vItanium.debug") != null) {
 			AppenderSkeleton mainAppender = (AppenderSkeleton) rootLogger.getAppender("main");
 			if (mainAppender == null) {
@@ -145,8 +160,23 @@ public class CPU {
 	}
 
 	private static Program compileProgram(String programPath)
-			throws VItaniumParseException {
-		return new VItaniumCompiler().compileFromSourceFile(programPath);
+			throws VItaniumParseException, VItaniumSystemException {
+		File program = new File(programPath);
+		if (program.exists()) {
+			return new VItaniumCompiler().compileFromSourceFile(program);
+		} else {
+			// fallback to classpath
+			URL programUrl = CPU.class.getResource("/" + programPath);
+			if (programUrl == null) {
+				throw new VItaniumParseException("Program file not found: " + programPath);
+			}
+			try {
+				return new VItaniumCompiler().compileFromSourceFile(new File(programUrl.toURI()));
+			} catch (URISyntaxException e) {
+				// now what...
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	private static void printUsage(Options expectedOpts) {

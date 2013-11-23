@@ -1,10 +1,12 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
+import java.text.MessageFormat;
 import java.util.EmptyStackException;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class Cvts extends VItaniumInstruction {
 
@@ -17,6 +19,8 @@ public class Cvts extends VItaniumInstruction {
 			throws VItaniumExecutionException {
 		try {
 			int value = stack.popInt();
+			
+			log.trace(MessageFormat.format("Converted {0} and pushed back as string.", value));
 
 			stack.pushString(String.valueOf(value));
 

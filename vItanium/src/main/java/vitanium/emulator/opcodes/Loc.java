@@ -1,28 +1,27 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import vitanium.emulator.VItaniumInstruction;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
-public class LdLoc extends VItaniumInstruction {
+public class Loc extends VItaniumInstruction {
 	
 	private final String variable;
 	
-	public LdLoc(int sourceIndex, String varName) {
+	public Loc(int sourceIndex, String varName) {
 		super(sourceIndex);
 		variable = varName;
 	}
-
+	
 	@Override
 	public void doExecute(Program program, Stack stack) throws VItaniumExecutionException {
-		Object value = program.loadNamedVariableValue(variable);
-		
-		stack.push(value);
+		program.createNamedVariable(variable);
 	}
 
 	@Override
 	public OpCode getCode() {
-		return OpCode.LDLOC;
+		return OpCode.LOC;
 	}
 	
 	@Override

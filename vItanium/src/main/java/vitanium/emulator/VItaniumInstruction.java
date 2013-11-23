@@ -1,9 +1,9 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator;
 
 import org.apache.log4j.Logger;
 
-import vitanium.emulator.Instruction;
-import vitanium.emulator.Program;
+import vitanium.emulator.execution.Instruction;
+import vitanium.emulator.execution.Program;
 
 /**
  * Common {@link Instruction} supertype, defining some execution lifecycle logic
@@ -11,6 +11,10 @@ import vitanium.emulator.Program;
  */
 public abstract class VItaniumInstruction implements Instruction {
 	
+	// use this to log execution lifecycle events as part of the CPU emulator log
+	private final Logger parentLogger = Logger.getLogger(VItaniumInstruction.class);
+	
+	// use in subclasses for specific logic logging
 	protected final Logger log = Logger.getLogger(getClass());
 	
 	private final int index;
@@ -29,11 +33,11 @@ public abstract class VItaniumInstruction implements Instruction {
 	}
 
 	public void afterExecute(Program program) {
-		log.info(program.toString() + " " + this.toString() + " executed successfully.");
+		parentLogger.info(program.toString() + " " + this.toString() + " executed successfully.");
 	}
 
 	public void beforeExecute(Program program) {
-		log.info(program.toString() + " Begin executing : " + this.toString() + "...");
+		parentLogger.info(program.toString() + " Begin executing : " + this.toString() + "...");
 	}
 	
 	@Override

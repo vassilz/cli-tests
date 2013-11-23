@@ -5,134 +5,158 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
-import vitanium.emulator.Instruction.OpCode;
 import vitanium.emulator.exceptions.VItaniumParseException;
-import vitanium.emulator.instructions.Cvts;
-import vitanium.emulator.instructions.Halt;
-import vitanium.emulator.instructions.JL;
-import vitanium.emulator.instructions.Jmp;
-import vitanium.emulator.instructions.LdInt;
-import vitanium.emulator.instructions.LdLoc;
-import vitanium.emulator.instructions.Loc;
-import vitanium.emulator.instructions.Print;
-import vitanium.emulator.instructions.StLoc;
-import vitanium.emulator.instructions.Sum;
+import vitanium.emulator.exceptions.VItaniumSystemException;
+import vitanium.emulator.execution.Instruction;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Instruction.OpCode;
+import vitanium.emulator.opcodes.Cvts;
+import vitanium.emulator.opcodes.Halt;
+import vitanium.emulator.opcodes.JL;
+import vitanium.emulator.opcodes.Jmp;
+import vitanium.emulator.opcodes.LdInt;
+import vitanium.emulator.opcodes.LdLoc;
+import vitanium.emulator.opcodes.Loc;
+import vitanium.emulator.opcodes.Print;
+import vitanium.emulator.opcodes.StLoc;
+import vitanium.emulator.opcodes.Sum;
 
 public final class VItaniumCompiler {
-	
+
 	private final Logger log = Logger.getLogger(getClass());
 
-	public Program compileFromSourceFile(String programPath) throws VItaniumParseException {
+	// make sure all Loc instructions go at the beginning of the program
+	private boolean acceptDeclarations = true;
+
+	public Program compileFromSourceFile(File programFile)
+			throws VItaniumParseException, VItaniumSystemException {
 		// TODO log debug & trace messages
 
-		String programName = FilenameUtils.getName(programPath);
+		String programName = FilenameUtils.getName(programFile
+				.getAbsolutePath());
 
 		Program vItaniumProgram = new Program(programName);
 
-		try {
-			URI programURI = CPU.class.getResource("/" + programPath).toURI();
+		try (BufferedReader bReader = new BufferedReader(new FileReader(
+				programFile))) {
+			String nextLine = null;
+			int lineNumber = 0;
 
-			try (BufferedReader bReader = new BufferedReader(new FileReader(
-					new File(programURI)))) {
-				String nextLine = null;
-				int lineNumber = 0;
+			while ((nextLine = bReader.readLine()) != null) {
+				String instruction = nextLine;
+				String label = null;
 
-				while ((nextLine = bReader.readLine()) != null) {
-					String instruction = nextLine;
-					String label = null;
+				if (instruction.contains(":")
+						&& (instruction.indexOf(":") == instruction
+								.lastIndexOf(":"))) {
+					int labelSeparatorIndex = instruction.indexOf(":");
+					label = instruction.substring(0, labelSeparatorIndex); // .trim().toUpperCase();
 
-					if (instruction.contains(":")
-							&& (instruction.indexOf(":") == instruction
-									.lastIndexOf(":"))) {
-						int labelSeparatorIndex = instruction.indexOf(":");
-						label = instruction.substring(0, labelSeparatorIndex); // .trim().toUpperCase();
+					log.debug("Label found: " + label);
 
-						log.debug("Label found: " + label);
-
-						instruction = nextLine.substring(
-								labelSeparatorIndex + 1).trim();
-					}
-
-					log.debug("Instruction found: " + instruction);
-
-					Instruction vItaniumInstruction = parse(lineNumber, instruction);
-
-					vItaniumProgram.appendInstruction(label,
-							vItaniumInstruction);
-
-					lineNumber++;
+					instruction = nextLine.substring(labelSeparatorIndex + 1)
+							.trim();
 				}
 
-			} catch (FileNotFoundException e) {
-				throw new RuntimeException(
-						"Source program not found. vItanium emulator will now exit.",
-						e);
-			} catch (IOException e) {
-				throw new RuntimeException(
-						"IO error. vItanium emulator will now exit.", e);
+				log.debug("Instruction found: " + instruction);
+
+				Instruction vItaniumInstruction = parse(lineNumber, instruction);
+
+				vItaniumProgram.appendInstruction(label, vItaniumInstruction);
+
+				lineNumber++;
 			}
 
-		} catch (URISyntaxException e1) {
-			throw new RuntimeException(e1);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(
+					"Source program not found. vItanium emulator will now exit.",
+					e);
+		} catch (IOException e) {
+			throw new RuntimeException(
+					"IO error. vItanium emulator will now exit.", e);
 		}
 
 		vItaniumProgram.readyForExecution();
 
 		return vItaniumProgram;
 	}
-	
-	public Instruction parse(int sourceIndex, String instruction) throws VItaniumParseException {
+
+	public Instruction parse(int sourceIndex, String instruction)
+			throws VItaniumParseException, VItaniumSystemException {
 		if (instruction == null) {
-			throw new VItaniumParseException("null instruction"); // runtime exception maybe
+			throw new VItaniumSystemException("null instruction");
 		}
-		
+
 		String[] parts = instruction.trim().split("\\s");
 		if (parts.length == 0 || parts[0] == null || parts[0].isEmpty()) {
-			throw new VItaniumParseException("null instruction: " + instruction);
+			throw new VItaniumSystemException("null instruction: "
+					+ instruction);
 		}
-		
-		String opCode = parts[0];
-		try {
-			if (OpCode.LOC.name().equalsIgnoreCase(opCode)) {
+
+		String sCode = parts[0];
+		OpCode opCode = OpCode.valueOf(sCode.toUpperCase());
+		switch (opCode) {
+		case LOC: {
+			if (acceptDeclarations) {
 				return new Loc(sourceIndex, parts[1]);
+			} else {
+				throw new VItaniumParseException(
+						"All local variable declarations (LOC <var>) must go in the beginning of the program.");
 			}
-			if (OpCode.LDINT.name().equalsIgnoreCase(opCode)) {
-				return new LdInt(sourceIndex, Integer.parseInt(parts[1]));
-			}
-			if (OpCode.STLOC.name().equalsIgnoreCase(opCode)) {
-				return new StLoc(sourceIndex, parts[1]);
-			}
-			if (OpCode.LDLOC.name().equalsIgnoreCase(opCode)) {
-				return new LdLoc(sourceIndex, parts[1]);
-			}
-			if (OpCode.CVTS.name().equalsIgnoreCase(opCode)) {
-				return new Cvts(sourceIndex);
-			}
-			if (OpCode.PRINT.name().equalsIgnoreCase(opCode)) {
-				return new Print(sourceIndex);
-			}
-			if (OpCode.SUM.name().equalsIgnoreCase(opCode)) {
-				return new Sum(sourceIndex);
-			}
-			if (OpCode.JMP.name().equalsIgnoreCase(opCode)) {
-				return new Jmp(sourceIndex, parts[1]);
-			}
-			if (OpCode.JL.name().equalsIgnoreCase(opCode)) {
-				return new JL(sourceIndex, parts[1]);
-			}
-			if (OpCode.HALT.name().equalsIgnoreCase(opCode)) {
-				return new Halt(sourceIndex);
-			}
-		} catch (Exception e) {
-			throw new VItaniumParseException(e);
 		}
-		
-		throw new VItaniumParseException("Unrecognized vItanium instruction OpCode: " + instruction);
+		case LDINT: {
+			acceptDeclarations = false;
+
+			return new LdInt(sourceIndex, Integer.parseInt(parts[1]));
+		}
+		case STLOC: {
+			acceptDeclarations = false;
+
+			return new StLoc(sourceIndex, parts[1]);
+		}
+		case LDLOC: {
+			acceptDeclarations = false;
+
+			return new LdLoc(sourceIndex, parts[1]);
+		}
+		case CVTS: {
+			acceptDeclarations = false;
+
+			return new Cvts(sourceIndex);
+		}
+		case PRINT: {
+			acceptDeclarations = false;
+
+			return new Print(sourceIndex);
+		}
+		case SUM: {
+			acceptDeclarations = false;
+
+			return new Sum(sourceIndex);
+		}
+		case JMP: {
+			acceptDeclarations = false;
+
+			return new Jmp(sourceIndex, parts[1]);
+		}
+		case JL: {
+			acceptDeclarations = false;
+
+			return new JL(sourceIndex, parts[1]);
+		}
+		case HALT: {
+			acceptDeclarations = false;
+
+			return new Halt(sourceIndex);
+		}
+		default: {
+			throw new VItaniumParseException(
+					"Unrecognized vItanium instruction OpCode: " + instruction);
+		}
+		}
 	}
 }

@@ -3,6 +3,7 @@ package vitanium.emulator;
 import org.apache.log4j.Logger;
 
 import vitanium.emulator.exceptions.VItaniumExecutionException;
+import vitanium.emulator.execution.Program;
 
 public final class VItaniumRunner {
 	
@@ -20,7 +21,7 @@ public final class VItaniumRunner {
 		try {
 			program.execute(instructionLimit);
 		} catch (VItaniumExecutionException e) {
-			program.dumpState();
+			program.dumpStateOnException();
 			throw e;
 		}
 

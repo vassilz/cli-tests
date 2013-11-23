@@ -1,7 +1,10 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import java.text.MessageFormat;
+
+import vitanium.emulator.VItaniumInstruction;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class Jmp extends VItaniumInstruction {
 	
@@ -14,8 +17,7 @@ public class Jmp extends VItaniumInstruction {
 
 	@Override
 	public void doExecute(Program program, Stack stack) {
-		// TODO Auto-generated method stub
-		
+		log.trace(MessageFormat.format("Unconditional JUMP to {0}", label));
 	}
 
 	@Override

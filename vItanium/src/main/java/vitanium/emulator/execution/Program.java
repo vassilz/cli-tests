@@ -1,4 +1,4 @@
-package vitanium.emulator;
+package vitanium.emulator.execution;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,16 +7,16 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import vitanium.emulator.Instruction.OpCode;
 import vitanium.emulator.exceptions.VItaniumExecutionException;
 import vitanium.emulator.exceptions.VItaniumParseException;
 import vitanium.emulator.exceptions.VariableNotFoundException;
-import vitanium.emulator.instructions.JL;
-import vitanium.emulator.instructions.Jmp;
+import vitanium.emulator.execution.Instruction.OpCode;
+import vitanium.emulator.opcodes.JL;
+import vitanium.emulator.opcodes.Jmp;
 
 public final class Program {
 	
-	private final Logger log;
+	private final Logger log = Logger.getLogger(getClass());
 	
 	// Human-readable name of the program. Derived from the source file.
 	private final String name;
@@ -35,7 +35,6 @@ public final class Program {
 	
 	public Program(String programName) {
 		name = programName;
-		log = Logger.getLogger(programName);
 		
 		instructions = new ArrayList<>();
 		labeledInstructions = new HashMap<>();
@@ -104,13 +103,25 @@ public final class Program {
 				if (willJump) {
 					nextInstruction = findLabeledInstruction(jl.getLabel());
 				} else {
-					nextInstruction = findInstructionByIndex(jl.getIndex() + 1);
+					try {
+						nextInstruction = findInstructionByIndex(jl.getIndex() + 1);
+					} catch (IndexOutOfBoundsException e) {
+						throw new VItaniumExecutionException(
+								"Program terminated abnormally as it attempted execution of instruction past the end of the source file.",
+								e);
+					}
 				}
 			} else {
 				// all other instructions have no special effect on the execution order
 				currentInstruction.doExecute(this, executionStack);
 				
-				nextInstruction = findInstructionByIndex(currentInstruction.getIndex() + 1);
+				try {
+					nextInstruction = findInstructionByIndex(currentInstruction.getIndex() + 1);
+				} catch (IndexOutOfBoundsException e) {
+					throw new VItaniumExecutionException(
+							"Program terminated abnormally as it attempted execution of instruction past the end of the source file.",
+							e);
+				}
 			}
 			
 			currentInstruction.afterExecute(this);
@@ -126,7 +137,7 @@ public final class Program {
 		throw new VItaniumExecutionException("Instruction labeled with " + label + " was not found in the source tree.");
 	}
 	
-	public Instruction findInstructionByIndex(int sourceIndex) throws ArrayIndexOutOfBoundsException {
+	public Instruction findInstructionByIndex(int sourceIndex) throws IndexOutOfBoundsException {
 		return instructions.get(sourceIndex);
 	}
 	
@@ -157,7 +168,7 @@ public final class Program {
 	/**
 	 * Used to debug vItanium programs that fail upon execution.
 	 */
-	void dumpState() {
+	public void dumpStateOnException() {
 		log.debug("Stack: " + executionStack.toString());
 		log.trace("Local variables: " + namedVariables);
 		log.trace("Defined labels: " + labeledInstructions.keySet());

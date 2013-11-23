@@ -1,7 +1,10 @@
-package vitanium.emulator.instructions;
+package vitanium.emulator.opcodes;
 
-import vitanium.emulator.Program;
-import vitanium.emulator.Stack;
+import java.text.MessageFormat;
+
+import vitanium.emulator.VItaniumInstruction;
+import vitanium.emulator.execution.Program;
+import vitanium.emulator.execution.Stack;
 
 public class LdInt extends VItaniumInstruction {
 	
@@ -15,6 +18,7 @@ public class LdInt extends VItaniumInstruction {
 	@Override
 	public void doExecute(Program program, Stack stack) {
 		stack.pushInt(integer);
+		log.trace(MessageFormat.format("Pushed {0} as int to the top of execution stack.", integer));
 	}
 
 	@Override
