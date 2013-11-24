@@ -68,6 +68,11 @@ public final class VItaniumCompiler {
 			while ((nextLine = bReader.readLine()) != null) {
 				String instruction = nextLine.trim();
 				String label = null;
+				
+				if (instruction.isEmpty()) {
+					// silently skip empty lines
+					continue;
+				}
 
 				if (enableComments && instruction.startsWith(COMMENT_SYMBOL)) {
 					// moving on
@@ -97,10 +102,10 @@ public final class VItaniumCompiler {
 							.trim();
 				}
 
-				log.debug("Instruction found: " + instruction);
-
 				Instruction vItaniumInstruction = parseInstruction(sourceIndex,
 						instruction);
+				
+				log.debug("Instruction found: " + vItaniumInstruction.toString());
 
 				vItaniumProgram.appendInstruction(label, vItaniumInstruction);
 
